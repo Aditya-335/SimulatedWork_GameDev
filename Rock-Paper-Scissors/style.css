@@ -1,0 +1,46 @@
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    text-align: center;
+}
+
+h1 {
+    color: #333;
+    margin-bottom: 30px;
+}
+
+.game-buttons {
+    margin-bottom: 30px;
+}
+
+.game-button {
+    font-size: 20px;
+    padding: 10px 20px;
+    margin: 0 10px;
+    cursor: pointer;
+    border: 2px solid #333;
+    border-radius: 5px;
+    background-color: white;
+    transition: background-color 0.3s;
+}
+
+.game-button:hover {
+    background-color: #f0f0f0;
+}
+
+.game-info {
+    text-align: left;
+    max-width: 300px;
+    margin: 0 auto;
+}
+
+.game-info p {
+    margin: 10px 0;
+    font-size: 18px;
+}
+
+.game-info span {
+    font-weight: bold;
+    color: #666;
+}
