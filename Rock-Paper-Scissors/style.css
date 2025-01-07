@@ -1,46 +1,208 @@
-.container {
-    max-width: 600px;
-    margin: 0 auto;
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #6e8efb, #a777e3);
+    display: flex;
+    justify-content: center;
+    align-items: center;
     padding: 20px;
-    text-align: center;
+}
+
+.container {
+    max-width: 800px;
+    width: 95%;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(5px);
 }
 
 h1 {
-    color: #333;
+    color: #2c3e50;
     margin-bottom: 30px;
+    font-size: 2.5em;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.scoreboard {
+    display: flex;
+    justify-content: center;
+    gap: 50px;
+    margin-bottom: 40px;
+}
+
+.score-box {
+    padding: 20px;
+    border: none;
+    border-radius: 15px;
+    min-width: 150px;
+    background: #fff;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.score-box:hover {
+    transform: translateY(-5px);
+}
+
+.score-box h2 {
+    margin: 0 0 15px 0;
+    font-size: 1.3em;
+    color: #34495e;
+}
+
+.score-box p {
+    margin: 0;
+    font-size: 2.5em;
+    font-weight: bold;
+    color: #2c3e50;
 }
 
 .game-buttons {
-    margin-bottom: 30px;
+    margin-bottom: 40px;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
 }
 
 .game-button {
-    font-size: 20px;
-    padding: 10px 20px;
-    margin: 0 10px;
+    font-size: 24px;
+    padding: 15px 30px;
     cursor: pointer;
-    border: 2px solid #333;
-    border-radius: 5px;
-    background-color: white;
-    transition: background-color 0.3s;
+    border: none;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
 }
 
 .game-button:hover {
-    background-color: #f0f0f0;
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.game-button:active {
+    transform: translateY(2px);
+}
+
+.game-button.winner {
+    background: linear-gradient(135deg, #43c6ac, #49b794);
+    color: white;
+    animation: pulse 1s infinite;
 }
 
 .game-info {
-    text-align: left;
-    max-width: 300px;
-    margin: 0 auto;
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 15px;
+    max-width: 400px;
+    margin: 0 auto 30px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
 }
 
 .game-info p {
-    margin: 10px 0;
+    margin: 12px 0;
     font-size: 18px;
+    color: #2c3e50;
 }
 
 .game-info span {
-    font-weight: bold;
-    color: #666;
+    font-weight: 600;
+    color: #34495e;
+    padding: 3px 8px;
+    border-radius: 5px;
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.result.win span {
+    color: #43c6ac;
+    background: rgba(67, 198, 172, 0.1);
+}
+
+.result.lose span {
+    color: #e74c3c;
+    background: rgba(231, 76, 60, 0.1);
+}
+
+.result.tie span {
+    color: #3498db;
+    background: rgba(52, 152, 219, 0.1);
+}
+
+.reset-button {
+    padding: 12px 30px;
+    font-size: 18px;
+    background: linear-gradient(135deg, #ff6b6b, #ee5253);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+    box-shadow: 0 5px 15px rgba(238, 82, 83, 0.3);
+}
+
+.reset-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(238, 82, 83, 0.4);
+}
+
+.reset-button:active {
+    transform: translateY(1px);
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 5px 15px rgba(67, 198, 172, 0.3);
+    }
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 8px 20px rgba(67, 198, 172, 0.4);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0 5px 15px rgba(67, 198, 172, 0.3);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    .container {
+        padding: 20px;
+    }
+
+    h1 {
+        font-size: 2em;
+    }
+
+    .scoreboard {
+        gap: 20px;
+    }
+
+    .score-box {
+        min-width: 120px;
+        padding: 15px;
+    }
+
+    .game-button {
+        font-size: 20px;
+        padding: 12px 24px;
+    }
+
+    .game-info {
+        padding: 15px;
+    }
 }
