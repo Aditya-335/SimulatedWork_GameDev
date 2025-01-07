@@ -15,15 +15,23 @@
                     <p>Moves: <span id="moves">0</span></p>
                 </div>
                 <div class="score">
-                    <p>Matches: <span id="matches">0</span></p>
+                    <p>Matches: <span id="matches">0</span>/8</p>
+                </div>
+                <div class="score">
+                    <p>Time: <span id="time">0:00</span></p>
                 </div>
             </div>
         </header>
 
         <div class="game-container">
-            <div id="game-board" class="game-board">
-                
-            </div>
+            <div id="game-board" class="game-board"></div>
+        </div>
+
+        <div id="win-message" class="win-message">
+            <h2>Congratulations! 🎉</h2>
+            <p>You completed the game in <span id="final-moves">0</span> moves</p>
+            <p>Time taken: <span id="final-time">0:00</span></p>
+            <button id="play-again" class="restart-button">Play Again</button>
         </div>
 
         <button id="restart" class="restart-button">Restart Game</button>

@@ -4,11 +4,18 @@ document.addEventListener('DOMContentLoaded', () => {
     let firstCard, secondCard;
     let moves = 0;
     let matches = 0;
+    let gameTimer;
+    let gameTime = 0;
 
     const gameBoard = document.getElementById('game-board');
     const movesDisplay = document.getElementById('moves');
     const matchesDisplay = document.getElementById('matches');
+    const timeDisplay = document.getElementById('time');
     const restartButton = document.getElementById('restart');
+    const playAgainButton = document.getElementById('play-again');
+    const winMessage = document.getElementById('win-message');
+    const finalMovesDisplay = document.getElementById('final-moves');
+    const finalTimeDisplay = document.getElementById('final-time');
 
     const cardImages = [
         'assets/blank.png',
@@ -24,10 +31,37 @@ document.addEventListener('DOMContentLoaded', () => {
     const gameCards = [...cardImages, ...cardImages];
 
     function initializeGame() {
+        
         moves = 0;
         matches = 0;
+        gameTime = 0;
+        hasFlippedCard = false;
+        lockBoard = false;
+        firstCard = null;
+        secondCard = null;
+
+        if (gameTimer) clearInterval(gameTimer);
+
+        startTimer();
+
         updateDisplays();
+        
+        winMessage.classList.remove('show');
+
         createBoard();
+    }
+
+    function startTimer() {
+        gameTimer = setInterval(() => {
+            gameTime++;
+            updateTimeDisplay();
+        }, 1000);
+    }
+
+    function updateTimeDisplay() {
+        const minutes = Math.floor(gameTime / 60);
+        const seconds = gameTime % 60;
+        timeDisplay.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
     }
 
     function shuffle(array) {
@@ -74,6 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function flipCard() {
         if (lockBoard) return;
         if (this === firstCard) return;
+        if (this.classList.contains('matched')) return;
 
         this.classList.add('flipped');
         moves++;
@@ -91,17 +126,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function checkForMatch() {
         const isMatch = firstCard.dataset.framework === secondCard.dataset.framework;
+
         if (isMatch) {
             matches++;
             updateDisplays();
-            disableCards();
+            handleMatch();
             checkWin();
         } else {
             unflipCards();
         }
     }
 
-    function disableCards() {
+    function handleMatch() {
+        firstCard.classList.add('matched');
+        secondCard.classList.add('matched');
         firstCard.removeEventListener('click', flipCard);
         secondCard.removeEventListener('click', flipCard);
         resetBoard();
@@ -128,13 +166,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function checkWin() {
         if (matches === cardImages.length) {
-            setTimeout(() => {
-                alert(`Congratulations! You won in ${moves} moves!`);
-            }, 500);
+            clearInterval(gameTimer);
+            setTimeout(showWinMessage, 500);
         }
     }
 
+    function showWinMessage() {
+        finalMovesDisplay.textContent = moves;
+        finalTimeDisplay.textContent = timeDisplay.textContent;
+        winMessage.classList.add('show');
+    }
+
     restartButton.addEventListener('click', initializeGame);
+    playAgainButton.addEventListener('click', initializeGame);
 
     initializeGame();
 });
