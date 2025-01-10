@@ -8,10 +8,39 @@
 </head>
 <body>
     <div class="game-container">
+        <div class="game-header">
+            <div class="score-board">
+                <div class="player-score">
+                    <span class="player-label">Player 1</span>
+                    <span class="score" id="player1Score">0</span>
+                </div>
+                <div class="player-score">
+                    <span class="player-label">Player 2</span>
+                    <span class="score" id="player2Score">0</span>
+                </div>
+            </div>
+            <div class="theme-selector">
+                <label for="theme">Theme:</label>
+                <select id="theme">
+                    <option value="classic">Classic</option>
+                    <option value="futuristic">Futuristic</option>
+                    <option value="fantasy">Fantasy</option>
+                </select>
+            </div>
+        </div>
         <div class="status" id="status">Player 1's turn</div>
         <div class="board" id="board"></div>
-        <button class="reset-button" id="resetButton">Reset Game</button>
+        <div class="controls">
+            <button class="reset-button" id="resetButton">New Game</button>
+            <button class="reset-scores-button" id="resetScoresButton">Reset Scores</button>
+            <label class="sound-toggle">
+                <input type="checkbox" id="soundToggle" checked>
+                Sound Effects
+            </label>
+        </div>
     </div>
+    <audio id="dropSound" src="data:audio/wav;base64,UklGRpQKAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YXAKAABt/4X/lf+Y/5X/lv+j/7P/wP+//7v/vP/B/8r/0P/O/8b/yP/T/93/4f/b/9L/0//i/+7/8P/o/93/4f/x////AgD7//D/9P8AAAUABAD+//T/+P8FABAADQD///P/+f8KABYAEgACAO//+P8MACIAGQADAO7/+f8SAC4AJgAKAPD//f8aADoAMQAPAPP/AQAiAEYAOwAVAPf/BgArAFIARAAbAP3/CwA0AF8ATgAiAAQAEgA+AGsAVwApAAoAGABKAHgAZAAxABEAIABWAIUAbwA6ABkAKQBjAJEAgABEACIAMwBxAJ4AjABPACwAPwCAAKsAmQBaADYASgCPALgApQBlAEEAVgCfAMUAsQBxAE0AYwCvANMAvgB9AFkAbgC/AOEAywCJAGYAewDQAO8A2ACWAHMAgwDgAP0A5gCkAIAAkADxAAsB9QCzAI4AngADAhkBAwDCAJsAqwAVASgBEQDSAKkAugApATYBHwDiALcAyQA9AUYBLgDyAMUA2QBSAVUBPQADAdQA6gBnAWQBTQAUAeMA/QB9AXQBXgAlAfIADgGTAYQBbwA3AQIBIAGqAZUBgQBKARIBMwHBAaYBkwBdASMBRwHZAbgBpgBxATUBWwHxAcoBuQCFAUcBbwEJAt0BzACaAVoBhAEiAu8B3wCvAW0BmQE7AgICEQDDAYABrwFUAhUCJADZAZUBxgFuAigCNwDvAakB3AGIAjsCSwAGA74B8wGdAk4CXwAdAtMBCwKzAmICcwAzAugBIwLJAnYChwBKAv0BOwLgAooCmwBhAhICVQLYApQCrwB4AicBbQLwAqAC3QCQAhwBPwLIAoQC1QB5AhEBLAKwAm4CzQBjAgUBGQKXAlgCxgBOAvgABgJ/AkMCvgA5AuwA9QFoAi4CtgAlAuAA5QFRARoAGwBsATwAkwElARIA9v8YADAAPAE3AQ0A7f8SACYAOgEpAQUA4/8NAB0APAEcAf7/2/8JABUAPgEQAfj/1P8FAA8AQQEFAfL/z/8CAAoAQwH7AO3/y/8AAAYARQHxAOn/yP/9/wIARwHoAOb/xf/7////SAHfAOP/w//5//3/SwHXAOH/wv/4//z/TgHPAOD/wf/3//v/UQHIAOD/wf/3//v/VAHA" type="audio/wav"></audio>
+    <audio id="winSound" src="data:audio/wav;base64,UklGRpQKAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YXAKAABt/4X/lf+Y/5X/lv+j/7P/wP+//7v/vP/B/8r/0P/O/8b/yP/T/93/4f/b/9L/0//i/+7/8P/o/93/4f/x////AgD7//D/9P8AAAUABAD+//T/+P8FABAADQD///P/+f8KABYAEgACAO//+P8MACIAGQADAO7/+f8SAC4AJgAKAPD//f8aADoAMQAPAPP/AQAiAEYAOwAVAPf/BgArAFIARAAbAP3/CwA0AF8ATgAiAAQAEgA+AGsAVwApAAoAGABKAHgAZAAxABEAIABWAIUAbwA6ABkAKQBjAJEAgABEACIAMwBxAJ4AjABPACwAPwCAAKsAmQBaADYASgCPALgApQBlAEEAVgCfAMUAsQBxAE0AYwCvANMAvgB9AFkAbgC/AOEAywCJAGYAewDQAO8A2ACWAHMAgwDgAP0A5gCkAIAAkADxAAsB9QCzAI4AngADAhkBAwDCAJsAqwAVASgBEQDSAKkAugApATYBHwDiALcAyQA9AUYBLgDyAMUA2QBSAVUBPQADAdQA6gBnAWQBTQAUAeMA/QB9AXQBXgAlAfIADgGTAYQBbwA3AQIBIAGqAZUBgQBKARIBMwHBAaYBkwBdASMBRwHZAbgBpgBxATUBWwHxAcoBuQCFAUcBbwEJAt0BzACaAVoBhAEiAu8B3wCvAW0BmQE7AgICEQDDAYABrwFUAhUCJADZAZUBxgFuAigCNwDvAakB3AGIAjsCSwAGA74B8wGdAk4CXwAdAtMBCwKzAmICcwAzAugBIwLJAnYChwBKAv0BOwLgAooCmwBhAhICVQLYApQCrwB4AicBbQLwAqAC3QCQAhwBPwLIAoQC1QB5AhEBLAKwAm4CzQBjAgUBGQKXAlgCxgBOAvgABgJ/AkMCvgA5AuwA9QFoAi4CtgAlAuAA5QFRARoAGwBsATwAkwElARIA9v8YADAAPAE3AQ0A7f8SACYAOgEpAQUA4/8NAB0APAEcAf7/2/8JABUAPgEQAfj/1P8FAA8AQQEFAfL/z/8CAAoAQwH7AO3/y/8AAAYARQHxAOn/yP/9/wIARwHoAOb/xf/7////SAHfAOP/w//5//3/SwHXAOH/wv/4//z/TgHPAOD/wf/3//v/UQHIAOD/wf/3//v/VAHA" type="audio/wav"></audio>
     <script src="app.js"></script>
 </body>
 </html>

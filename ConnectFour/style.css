@@ -7,6 +7,43 @@
     font-family: Arial, sans-serif;
 }
 
+.game-header {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 600px;
+}
+
+.score-board {
+    display: flex;
+    gap: 20px;
+}
+
+.player-score {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.player-label {
+    font-weight: bold;
+}
+
+.score {
+    font-size: 24px;
+}
+
+.theme-selector {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.theme-selector select {
+    padding: 5px;
+    border-radius: 5px;
+}
+
 .status {
     font-size: 24px;
     font-weight: bold;
@@ -14,12 +51,26 @@
 }
 
 .board {
-    background-color: #2563eb;
     padding: 20px;
     border-radius: 10px;
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     gap: 10px;
+    transition: background-color 0.3s;
+}
+
+.board.classic {
+    background-color: #2563eb;
+}
+
+.board.futuristic {
+    background-color: #3b0764;
+    box-shadow: 0 0 20px rgba(147, 51, 234, 0.5);
+}
+
+.board.fantasy {
+    background-color: #064e3b;
+    background-image: linear-gradient(45deg, #064e3b 0%, #065f46 100%);
 }
 
 .cell {
@@ -32,7 +83,7 @@
     align-items: center;
     justify-content: center;
     position: relative;
-    transition: background-color 0.2s;
+    transition: all 0.2s;
 }
 
 .cell:hover {
@@ -45,20 +96,44 @@
     border-radius: 50%;
     position: absolute;
     transition: all 0.3s ease;
+    animation: dropPiece 0.5s ease-in;
 }
 
-.player1 {
+.classic .player1 {
     background-color: #ef4444;
 }
 
-.player2 {
+.classic .player2 {
     background-color: #eab308;
 }
 
-.reset-button {
+.futuristic .player1 {
+    background-color: #ec4899;
+    box-shadow: 0 0 10px #ec4899;
+}
+
+.futuristic .player2 {
+    background-color: #6366f1;
+    box-shadow: 0 0 10px #6366f1;
+}
+
+.fantasy .player1 {
+    background: radial-gradient(circle at 30% 30%, #fcd34d, #b45309);
+}
+
+.fantasy .player2 {
+    background: radial-gradient(circle at 30% 30%, #a5f3fc, #0e7490);
+}
+
+.controls {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.reset-button, .reset-scores-button {
     padding: 10px 20px;
     font-size: 16px;
-    background-color: #2563eb;
     color: white;
     border: none;
     border-radius: 5px;
@@ -66,6 +141,47 @@
     transition: background-color 0.2s;
 }
 
+.reset-button {
+    background-color: #2563eb;
+}
+
+.reset-scores-button {
+    background-color: #dc2626;
+}
+
 .reset-button:hover {
     background-color: #1d4ed8;
+}
+
+.reset-scores-button:hover {
+    background-color: #b91c1c;
+}
+
+.sound-toggle {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+}
+
+@keyframes dropPiece {
+    0% {
+        transform: translateY(-300px);
+    }
+    100% {
+        transform: translateY(0);
+    }
+}
+
+@keyframes win {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+}
+
+.winning-piece {
+    animation: win 0.5s ease-in-out infinite;
 }
