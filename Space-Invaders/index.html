@@ -11,12 +11,15 @@
         <div class="game-info">
             <span>Score: <span id="score">0</span></span>
             <span>Lives: <span id="lives">3</span></span>
+            <button id="reset-button">Reset Game</button>
         </div>
         <div id="grid"></div>
         <div class="controls">
-            <p>Use ← → to move and SPACE to shoot</p>
+            <p>Use ← → to move, ↑ to shoot</p>
         </div>
     </div>
+    <audio id="shoot-sound" src="shoot.mp3"></audio>
+    <audio id="explosion-sound" src="explosion.mp3"></audio>
     <script src="app.js"></script>
 </body>
 </html>
