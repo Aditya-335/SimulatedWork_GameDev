@@ -134,6 +134,11 @@ h1 {
     background: rgba(231, 76, 60, 0.1);
 }
 
+.game-button.selected {
+    box-shadow: 0 0 15px rgba(67, 198, 172, 0.6);
+}
+
+
 .result.tie span {
     color: #3498db;
     background: rgba(52, 152, 219, 0.1);
@@ -162,6 +167,28 @@ h1 {
 .reset-button:active {
     transform: translateY(1px);
 }
+
+/* Add zoom animation for button clicks */
+.game-button:active {
+    transform: scale(1.2); /* Slightly enlarge */
+    transition: transform 0.2s ease; /* Smooth effect */
+}
+
+/* Add a bounce effect when a choice is selected */
+.game-button.selected {
+    animation: bounce 0.5s ease;
+}
+
+/* Keyframes for bounce animation */
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
 
 @keyframes pulse {
     0% {

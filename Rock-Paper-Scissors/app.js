@@ -19,23 +19,25 @@ document.addEventListener('DOMContentLoaded', () => {
     resetButton.addEventListener('click', resetGame);
 
     function handlePlayerChoice(event) {
-        buttons.forEach(btn => btn.classList.remove('winner'));
-
+        buttons.forEach(btn => btn.classList.remove('winner', 'selected')); // Remove existing classes
+    
         const playerChoice = event.target.id;
         if (!isValidChoice(playerChoice)) {
             console.error('Invalid choice:', playerChoice);
             return;
         }
-
+    
+        event.target.classList.add('selected'); // Add the selected class for animation
+    
         const computerChoice = getComputerChoice();
-        
         playerChoiceDisplay.textContent = capitalizeFirstLetter(playerChoice);
         computerChoiceDisplay.textContent = capitalizeFirstLetter(computerChoice);
-
+    
         const result = determineWinner(playerChoice, computerChoice);
         displayResult(result, playerChoice, computerChoice);
         updateScores(result);
     }
+    
 
     function getComputerChoice() {
         const choices = ['rock', 'paper', 'scissors'];
