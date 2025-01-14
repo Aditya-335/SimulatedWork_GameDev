@@ -1,173 +1,287 @@
-const timeLeftDisplay = document.querySelector("#time-left");
-const resultDisplay = document.querySelector("#result");
-const startPauseButton = document.querySelector("#start-pause-button");
-const squares = document.querySelectorAll(".grid div");
-const logsLeft = document.querySelectorAll(".log-left");
-const logsRight = document.querySelectorAll(".log-right");
-const carsLeft = document.querySelectorAll(".car-left");
-const carsRight = document.querySelectorAll(".car-right");
-
-let currentIndex = 76;
-const width = 9;
-let timerId;
-let outcomeTimerId;
-let currentTime = 20;
-
-function moveFrog(e) {
-  squares[currentIndex].classList.remove("frog");
-
-  switch (e.key) {
-    case "ArrowLeft":
-      if (currentIndex % width !== 0) currentIndex -= 1;
-      break;
-
-    case "ArrowRight":
-      if (currentIndex % width < width - 1) currentIndex += 1;
-      break;
-
-    case "ArrowUp":
-      if (currentIndex - width >= 0) currentIndex -= width;
-      break;
-
-    case "ArrowDown":
-      if (currentIndex + width < width * width) currentIndex += width;
-      break;
+class Game {
+  constructor() {
+      this.grid = document.querySelector('.game-grid');
+      this.startBtn = document.getElementById('startBtn');
+      this.timerDisplay = document.querySelector('.timer');
+      this.gameOver = document.querySelector('.game-over');
+      this.resultMessage = document.querySelector('.result-message');
+      this.retryBtn = document.querySelector('.retry-btn');
+      
+      this.gridSize = 13;
+      this.cellSize = 40;
+      this.timeLeft = 20;
+      this.isPlaying = false;
+      this.isPaused = false;
+      this.gameTimer = null;
+      this.obstacles = [];
+      this.obstacleTimers = [];
+      
+      this.frog = {
+          x: 6,
+          y: 12,
+          element: document.createElement('div')
+      };
+      
+      this.init();
   }
-  squares[currentIndex].classList.add("frog");
-}
 
-function autoMoveElements() {
-  currentTime--;
-  timeLeftDisplay.textContent = currentTime;
-  logsLeft.forEach((logLeft) => moveLogLeft(logLeft));
-  logsRight.forEach((logRight) => moveLogRight(logRight));
-  carsLeft.forEach((carLeft) => moveCarToLeft(carLeft));
-  carsRight.forEach((carRight) => moveCarToRight(carRight));
-}
+  init() {
+      this.createGrid();
+      this.createFrog();
+      this.setupEventListeners();
+      this.createObstacles();
+  }
 
-function checkOutComes() {
-  lose();
-  win();
-}
+  createGrid() {
+      for (let y = 0; y < this.gridSize; y++) {
+          for (let x = 0; x < this.gridSize; x++) {
+              const cell = document.createElement('div');
+              cell.classList.add('cell');
+              
+              // Starting block (blue)
+              if (y === 12 && x === 6) {
+                  cell.classList.add('starting-block');
+              }
+              // Ending block (red)
+              else if (y === 0 && x === 6) {
+                  cell.classList.add('ending-block');
+              }
+              // River rows
+              else if (y >= 1 && y <= 3) {
+                  cell.classList.add('river');
+              }
+              // Safe zones
+              else if (y === 4 || y === 8) {
+                  cell.classList.add('safe');
+              }
+              // Road rows
+              else if (y >= 5 && y <= 7) {
+                  cell.classList.add('road');
+              }
+              
+              this.grid.appendChild(cell);
+          }
+      }
+  }
 
-function moveLogLeft(logLeft) {
-  switch (true) {
-    case logLeft.classList.contains("l1"):
-      logLeft.classList.remove("l1");
-      logLeft.classList.add("l2");
-      break;
-    case logLeft.classList.contains("l2"):
-      logLeft.classList.remove("l2");
-      logLeft.classList.add("l3");
-      break;
-    case logLeft.classList.contains("l3"):
-      logLeft.classList.remove("l3");
-      logLeft.classList.add("l4");
-      break;
-    case logLeft.classList.contains("l4"):
-      logLeft.classList.remove("l4");
-      logLeft.classList.add("l5");
-      break;
-    case logLeft.classList.contains("l5"):
-      logLeft.classList.remove("l5");
-      logLeft.classList.add("l1");
-      break;
+  createFrog() {
+      this.frog.element.classList.add('frog');
+      this.grid.appendChild(this.frog.element);
+      this.updateFrogPosition();
+  }
+
+  updateFrogPosition() {
+      this.frog.element.style.left = `${this.frog.x * this.cellSize}px`;
+      this.frog.element.style.top = `${this.frog.y * this.cellSize}px`;
+  }
+
+  createObstacles() {
+      // Cars
+      this.createObstacleRow(7, 'car', 1, -1);
+      this.createObstacleRow(6, 'car', 2, 1);
+      this.createObstacleRow(5, 'car', 1.5, -1);
+
+      // Logs
+      this.createObstacleRow(3, 'log', 1, 1);
+      this.createObstacleRow(2, 'log', 2, -1);
+      this.createObstacleRow(1, 'log', 1.5, 1);
+  }
+
+  createObstacleRow(row, type, speed, direction) {
+      const spacing = 3;
+      for (let i = 0; i < 4; i++) {
+          const obstacle = document.createElement('div');
+          obstacle.classList.add(type);
+          
+          const x = i * (spacing + 1);
+          const obstacleObj = {
+              element: obstacle,
+              x: x,
+              y: row,
+              speed: speed,
+              direction: direction
+          };
+          
+          this.obstacles.push(obstacleObj);
+          this.grid.appendChild(obstacle);
+          this.updateObstaclePosition(obstacleObj);
+      }
+  }
+
+  updateObstaclePosition(obstacle) {
+      obstacle.element.style.left = `${obstacle.x * this.cellSize}px`;
+      obstacle.element.style.top = `${obstacle.y * this.cellSize}px`;
+  }
+
+  moveObstacles() {
+      this.obstacles.forEach(obstacle => {
+          obstacle.x += obstacle.speed * obstacle.direction * 0.01;
+          
+          if (obstacle.x > this.gridSize) {
+              obstacle.x = -1;
+          } else if (obstacle.x < -1) {
+              obstacle.x = this.gridSize;
+          }
+          
+          this.updateObstaclePosition(obstacle);
+      });
+  }
+
+  checkCollisions() {
+      const frogBox = {
+          left: this.frog.x,
+          right: this.frog.x + 1,
+          top: this.frog.y,
+          bottom: this.frog.y + 1
+      };
+
+      // Check obstacle collisions
+      for (const obstacle of this.obstacles) {
+          const obstacleBox = {
+              left: obstacle.x,
+              right: obstacle.x + 1,
+              top: obstacle.y,
+              bottom: obstacle.y + 1
+          };
+
+          if (this.boxesIntersect(frogBox, obstacleBox)) {
+              if (obstacle.element.classList.contains('car')) {
+                  this.endGame('You got hit by a car!');
+                  return;
+              } else if (obstacle.element.classList.contains('log')) {
+                  // Move with the log
+                  this.frog.x += obstacle.speed * obstacle.direction * 0.02;
+                  this.updateFrogPosition();
+              }
+          }
+      }
+
+      // Check if in river without log
+      if (this.frog.y >= 1 && this.frog.y <= 3) {
+          let onLog = false;
+          for (const obstacle of this.obstacles) {
+              if (obstacle.element.classList.contains('log') && this.boxesIntersect(frogBox, {
+                  left: obstacle.x,
+                  right: obstacle.x + 1,
+                  top: obstacle.y,
+                  bottom: obstacle.y + 1
+              })) {
+                  onLog = true;
+                  break;
+              }
+          }
+          if (!onLog) {
+              this.endGame('You fell in the river!');
+          }
+      }
+
+      // Check win condition
+      if (this.frog.y === 0 && this.frog.x === 6) {
+          this.endGame('You won!', true);
+      }
+  }
+
+  boxesIntersect(a, b) {
+      return !(a.left >= b.right || 
+              a.right <= b.left || 
+              a.top >= b.bottom || 
+              a.bottom <= b.top);
+  }
+
+  setupEventListeners() {
+      document.addEventListener('keydown', (e) => {
+          if (!this.isPlaying || this.isPaused) return;
+          
+          switch(e.key) {
+              case 'ArrowLeft':
+                  if (this.frog.x > 0) this.frog.x--;
+                  break;
+              case 'ArrowRight':
+                  if (this.frog.x < this.gridSize - 1) this.frog.x++;
+                  break;
+              case 'ArrowUp':
+                  if (this.frog.y > 0) this.frog.y--;
+                  break;
+              case 'ArrowDown':
+                  if (this.frog.y < this.gridSize - 1) this.frog.y++;
+                  break;
+          }
+          
+          this.updateFrogPosition();
+          this.checkCollisions();
+      });
+
+      this.startBtn.addEventListener('click', () => this.toggleGame());
+      this.retryBtn.addEventListener('click', () => this.resetGame());
+  }
+
+  toggleGame() {
+      if (!this.isPlaying) {
+          this.startGame();
+      } else {
+          this.isPaused = !this.isPaused;
+          this.startBtn.textContent = this.isPaused ? 'Resume' : 'Pause';
+      }
+  }
+
+  startGame() {
+      this.isPlaying = true;
+      this.isPaused = false;
+      this.startBtn.textContent = 'Pause';
+      this.gameOver.style.display = 'none';
+      
+      this.gameTimer = setInterval(() => {
+          if (!this.isPaused) {
+              this.timeLeft--;
+              this.timerDisplay.textContent = this.timeLeft;
+              this.moveObstacles();
+              this.checkCollisions();
+              
+              if (this.timeLeft <= 0) {
+                  this.endGame('Time\'s up!');
+              }
+          }
+      }, 1000);
+
+      // Start obstacle animation
+      requestAnimationFrame(() => this.animateObstacles());
+  }
+
+  animateObstacles() {
+      if (this.isPlaying && !this.isPaused) {
+          this.moveObstacles();
+          this.checkCollisions();
+      }
+      if (this.isPlaying) {
+          requestAnimationFrame(() => this.animateObstacles());
+      }
+  }
+
+  endGame(message, won = false) {
+      this.isPlaying = false;
+      this.isPaused = false;
+      clearInterval(this.gameTimer);
+      
+      this.resultMessage.textContent = message;
+      this.gameOver.style.display = 'block';
+      this.startBtn.textContent = 'Start Game';
+      
+      if (won) {
+          this.resultMessage.style.color = '#22c55e';
+      } else {
+          this.resultMessage.style.color = '#dc2626';
+      }
+  }
+
+  resetGame() {
+      this.timeLeft = 20;
+      this.timerDisplay.textContent = this.timeLeft;
+      this.frog.x = 6;
+      this.frog.y = 12;
+      this.updateFrogPosition();
+      this.gameOver.style.display = 'none';
+      this.startGame();
   }
 }
 
-function moveLogRight(logRight) {
-  switch (true) {
-    case logRight.classList.contains("l1"):
-      logRight.classList.remove("l1");
-      logRight.classList.add("l5");
-      break;
-    case logRight.classList.contains("l2"):
-      logRight.classList.remove("l2");
-      logRight.classList.add("l1");
-      break;
-    case logRight.classList.contains("l3"):
-      logRight.classList.remove("l3");
-      logRight.classList.add("l2");
-      break;
-    case logRight.classList.contains("l4"):
-      logRight.classList.remove("l4");
-      logRight.classList.add("l3");
-      break;
-    case logRight.classList.contains("l5"):
-      logRight.classList.remove("l5");
-      logRight.classList.add("l4");
-      break;
-  }
-}
-
-function moveCarToLeft(carLeft) {
-  switch (true) {
-    case carLeft.classList.contains("c1"):
-      carLeft.classList.remove("c1");
-      carLeft.classList.add("c2");
-      break;
-    case carLeft.classList.contains("c2"):
-      carLeft.classList.remove("c2");
-      carLeft.classList.add("c3");
-      break;
-    case carLeft.classList.contains("c3"):
-      carLeft.classList.remove("c3");
-      carLeft.classList.add("c1");
-      break;
-  }
-}
-
-function moveCarToRight(carRight) {
-  switch (true) {
-    case carRight.classList.contains("c1"):
-      carRight.classList.remove("c1");
-      carRight.classList.add("c3");
-      break;
-    case carRight.classList.contains("c2"):
-      carRight.classList.remove("c2");
-      carRight.classList.add("c1");
-      break;
-    case carRight.classList.contains("c3"):
-      carRight.classList.remove("c3");
-      carRight.classList.add("c2");
-      break;
-  }
-}
-
-function lose() {
-  if (
-    squares[currentIndex].classList.contains("c1") ||
-    squares[currentIndex].classList.contains("l4") ||
-    squares[currentIndex].classList.contains("l5") ||
-    currentTime <= 0
-  ) {
-    resultDisplay.textContent = "You lose!";
-    clearInterval(timerId);
-    clearInterval(outcomeTimerId);
-    squares[currentIndex].classList.remove("frog");
-    document.removeEventListener("keyup", moveFrog);
-  }
-}
-
-function win() {
-  if (squares[currentIndex].classList.contains("ending-block")) {
-    resultDisplay.textContent = "You Win!";
-    clearInterval(timerId);
-    clearInterval(outcomeTimerId);
-    document.removeEventListener("keyup", moveFrog);
-  }
-}
-
-startPauseButton.addEventListener("click", () => {
-  if (timerId) {
-    clearInterval(timerId);
-    clearInterval(outcomeTimerId);
-    outcomeTimerId = null;
-    timerId = null;
-    document.removeEventListener("keyup", moveFrog);
-  } else {
-    timerId = setInterval(autoMoveElements, 1000);
-    outcomeTimerId = setInterval(checkOutComes, 50);
-    document.addEventListener("keyup", moveFrog);
-  }
-});
+new Game();
