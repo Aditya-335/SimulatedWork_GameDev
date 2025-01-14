@@ -87,12 +87,70 @@ button:hover {
     object-fit: cover;
 }
 
+#startButton{
+    margin-left:20px;
+}
+
 .hole.mole .mole-image {
     display: block;
     animation: appear 0.3s ease-out;
 }
 
+/* Add these styles to your existing CSS */
 
+.bonus-mole {
+    background-color: #FFD700 !important;
+    animation: appear 0.3s ease-out, glow 1s infinite;
+}
+
+.whack-effect {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    animation: whack 0.3s ease-out;
+    pointer-events: none;
+}
+
+.level-up-message {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 20px 40px;
+    border-radius: 10px;
+    font-size: 24px;
+    animation: fadeInOut 1.5s ease-in-out;
+    z-index: 1000;
+}
+
+.level-indicator {
+    margin-left: 20px;
+    font-size: 1.2rem;
+}
+
+@keyframes glow {
+    0%, 100% { box-shadow: 0 0 10px #FFD700; }
+    50% { box-shadow: 0 0 20px #FFD700; }
+}
+
+@keyframes whack {
+    0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
+}
+
+@keyframes fadeInOut {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+    15% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    85% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+}
 
 @keyframes appear {
     0% {

@@ -1,96 +1,171 @@
 class WhacAMole {
     constructor() {
-        this.score = 0;
-        this.timeLeft = 30;
-        this.isGameActive = false;
-        this.currentPosition = null;
-        
-        this.squares = document.querySelectorAll('.hole');
-        this.scoreDisplay = document.getElementById('score');
-        this.timeDisplay = document.getElementById('time');
+        this.scoreElement = document.getElementById('score');
+        this.holes = document.querySelectorAll('.hole');
         this.startButton = document.getElementById('startButton');
+        this.levelElement = document.getElementById('level');
         
-        this.startGame = this.startGame.bind(this);
-        this.whackMole = this.whackMole.bind(this);
-        this.moveMole = this.moveMole.bind(this);
-        this.countDown = this.countDown.bind(this);
-        
-        this.startButton.addEventListener('click', this.startGame);
-        this.squares.forEach(square => {
-            square.addEventListener('click', () => this.whackMole(square));
-        });
-    }
-
-    whackMole(square) {
-        if (!this.isGameActive) return;
-        
-        if (square.classList.contains('mole')) {
-            this.score++;
-            this.scoreDisplay.textContent = this.score;
-            
-            square.classList.remove('mole');
-            
-            this.moveMole();
-        }
-    }
-
-    moveMole() {
-        this.squares.forEach(square => {
-            square.classList.remove('mole');
-        });
-
-        let randomSquare = this.squares[Math.floor(Math.random() * this.squares.length)];
-        
-        randomSquare.classList.add('mole');
-        this.currentPosition = randomSquare;
-    }
-
-    countDown() {
-        this.timeLeft--;
-        this.timeDisplay.textContent = this.timeLeft;
-
-        if (this.timeLeft === 0) {
-            this.endGame();
-        }
-    }
-
-    // Start the game
-    startGame() {
         this.score = 0;
-        this.timeLeft = 30;
-        this.isGameActive = true;
-        
-        this.scoreDisplay.textContent = this.score;
-        this.timeDisplay.textContent = this.timeLeft;
-        
-        this.startButton.style.display = 'none';
+        this.currentLevel = 1;
+        this.isGameActive = false;
+        this.moleTimers = [];
+        this.activeMoles = new Set();
 
-        let moveInterval = setInterval(this.moveMole, 1000);
-        
-        let timeInterval = setInterval(this.countDown, 1000);
-
-        this.intervals = {
-            move: moveInterval,
-            time: timeInterval
+        this.config = {
+            baseInterval: 1500,
+            minInterval: 400,
+            bonusProbability: 0.2,
+            levelThreshold: 100,
+            speedIncrease: 100
         };
 
-        this.moveMole();
+        this.startGame = this.startGame.bind(this);
+        this.stopGame = this.stopGame.bind(this);
+        this.whackMole = this.whackMole.bind(this);
+        this.showMole = this.showMole.bind(this);
+
+        this.setupEventListeners();
     }
 
-    endGame() {
+    setupEventListeners() {
+        this.startButton.addEventListener('click', this.startGame);
+        this.holes.forEach(hole => {
+            hole.addEventListener('click', () => this.whackMole(hole));
+        });
+    }
+
+    startGame() {
+        this.score = 0;
+        this.currentLevel = 1;
+        this.isGameActive = true;
+        this.activeMoles.clear();
+        
+        this.updateScore();
+        this.updateLevel();
+        this.startButton.style.display = 'none';
+
+        this.scheduleNextMole();
+    }
+
+    stopGame() {
         this.isGameActive = false;
+        this.moleTimers.forEach(timer => clearTimeout(timer));
+        this.moleTimers = [];
+        this.activeMoles.clear();
         
-        clearInterval(this.intervals.move);
-        clearInterval(this.intervals.time);
-        
-        if (this.currentPosition) {
-            this.currentPosition.classList.remove('mole');
-        }
-        
+        this.holes.forEach(hole => {
+            hole.classList.remove('mole', 'bonus-mole');
+            hole.dataset.active = 'false';
+        });
+
+        alert(`Game Over! Final Score: ${this.score}`);
         this.startButton.style.display = 'block';
         this.startButton.textContent = 'Play Again';
+    }
+
+    scheduleNextMole() {
+        if (!this.isGameActive) return;
+
+        const baseDelay = Math.max(
+            this.config.minInterval,
+            this.config.baseInterval - (this.currentLevel - 1) * this.config.speedIncrease
+        );
+        const randomDelay = baseDelay * (0.5 + Math.random());
+
+        const timer = setTimeout(() => {
+            this.showMole();
+            this.scheduleNextMole();
+        }, randomDelay);
+
+        this.moleTimers.push(timer);
+    }
+
+    showMole() {
+        if (!this.isGameActive) return;
+
+        const availableHoles = Array.from(this.holes)
+            .filter(hole => !this.activeMoles.has(hole));
+
+        if (availableHoles.length === 0) return;
+
         
-        alert(`Game Over! Your final score is: ${this.score}`);
+        const hole = availableHoles[Math.floor(Math.random() * availableHoles.length)];
+        
+        
+        const isBonus = Math.random() < this.config.bonusProbability;
+        
+        
+        hole.classList.add(isBonus ? 'bonus-mole' : 'mole');
+        hole.dataset.active = 'true';
+        hole.dataset.bonus = isBonus;
+        this.activeMoles.add(hole);
+
+        
+        const duration = isBonus ? 1000 : 2000;
+        const timer = setTimeout(() => {
+            this.hideMole(hole);
+        }, duration);
+
+        this.moleTimers.push(timer);
+    }
+
+    hideMole(hole) {
+        hole.classList.remove('mole', 'bonus-mole');
+        hole.dataset.active = 'false';
+        this.activeMoles.delete(hole);
+    }
+
+    whackMole(hole) {
+        if (!this.isGameActive || hole.dataset.active !== 'true') return;
+
+        
+        const isBonus = hole.dataset.bonus === 'true';
+        const points = isBonus ? 20 : 10;
+        this.score += points;
+
+        
+        this.updateScore();
+        this.checkLevel();
+
+        
+        this.hideMole(hole);
+
+        
+        this.showWhackEffect(hole);
+    }
+
+    showWhackEffect(hole) {
+        const effect = document.createElement('div');
+        effect.className = 'whack-effect';
+        hole.appendChild(effect);
+        
+        setTimeout(() => effect.remove(), 300);
+    }
+
+    updateScore() {
+        this.scoreElement.textContent = this.score;
+    }
+
+    checkLevel() {
+        const newLevel = Math.floor(this.score / this.config.levelThreshold) + 1;
+        if (newLevel !== this.currentLevel) {
+            this.currentLevel = newLevel;
+            this.updateLevel();
+            this.showLevelUpMessage();
+        }
+    }
+
+    updateLevel() {
+        this.levelElement.textContent = this.currentLevel;
+    }
+
+    showLevelUpMessage() {
+        const message = document.createElement('div');
+        message.className = 'level-up-message';
+        message.textContent = `Level ${this.currentLevel}!`;
+        document.body.appendChild(message);
+        
+        setTimeout(() => message.remove(), 1500);
     }
 }
 
