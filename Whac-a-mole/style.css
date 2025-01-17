@@ -21,6 +21,12 @@ body {
     text-align: center;
 }
 
+.timer {
+    font-size: 1.2 rem;
+    margin-left: 10px;
+    
+}
+
 h1 {
     color: #333;
     margin-bottom: 1rem;

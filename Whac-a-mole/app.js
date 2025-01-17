@@ -4,12 +4,15 @@ class WhacAMole {
         this.holes = document.querySelectorAll('.hole');
         this.startButton = document.getElementById('startButton');
         this.levelElement = document.getElementById('level');
+        this.timerElement = document.getElementById('timer');
         
         this.score = 0;
         this.currentLevel = 1;
         this.isGameActive = false;
         this.moleTimers = [];
         this.activeMoles = new Set();
+        this.timeLeft = 30;
+        this.gameTimer = null;
 
         this.config = {
             baseInterval: 1500,
@@ -23,6 +26,7 @@ class WhacAMole {
         this.stopGame = this.stopGame.bind(this);
         this.whackMole = this.whackMole.bind(this);
         this.showMole = this.showMole.bind(this);
+        this.updateTimer = this.updateTimer.bind(this);
 
         this.setupEventListeners();
     }
@@ -34,15 +38,28 @@ class WhacAMole {
         });
     }
 
+    updateTimer() {
+        this.timeLeft--;
+        this.timerElement.textContent = this.timeLeft;
+        
+        if (this.timeLeft <= 0) {
+            this.stopGame();
+        }
+    }
+
     startGame() {
         this.score = 0;
         this.currentLevel = 1;
         this.isGameActive = true;
         this.activeMoles.clear();
+        this.timeLeft = 30;
         
         this.updateScore();
         this.updateLevel();
+        this.timerElement.textContent = this.timeLeft;
         this.startButton.style.display = 'none';
+
+        this.gameTimer = setInterval(this.updateTimer, 1000);
 
         this.scheduleNextMole();
     }
@@ -52,6 +69,11 @@ class WhacAMole {
         this.moleTimers.forEach(timer => clearTimeout(timer));
         this.moleTimers = [];
         this.activeMoles.clear();
+        
+        if (this.gameTimer) {
+            clearInterval(this.gameTimer);
+            this.gameTimer = null;
+        }
         
         this.holes.forEach(hole => {
             hole.classList.remove('mole', 'bonus-mole');
@@ -88,19 +110,15 @@ class WhacAMole {
 
         if (availableHoles.length === 0) return;
 
-        
         const hole = availableHoles[Math.floor(Math.random() * availableHoles.length)];
         
-        
         const isBonus = Math.random() < this.config.bonusProbability;
-        
         
         hole.classList.add(isBonus ? 'bonus-mole' : 'mole');
         hole.dataset.active = 'true';
         hole.dataset.bonus = isBonus;
         this.activeMoles.add(hole);
 
-        
         const duration = isBonus ? 1000 : 2000;
         const timer = setTimeout(() => {
             this.hideMole(hole);
@@ -118,19 +136,15 @@ class WhacAMole {
     whackMole(hole) {
         if (!this.isGameActive || hole.dataset.active !== 'true') return;
 
-        
         const isBonus = hole.dataset.bonus === 'true';
         const points = isBonus ? 20 : 10;
         this.score += points;
 
-        
         this.updateScore();
         this.checkLevel();
 
-        
         this.hideMole(hole);
 
-        
         this.showWhackEffect(hole);
     }
 
